@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evaluations', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+      Schema::create('evaluations', function (Blueprint $table) {
+    $table->id();
+    $table->string('titre');
+    $table->string('date');
+    $table->string('type',45);
+    $table->timestamps();
+});
     }
 
     /**
@@ -25,3 +28,4 @@ return new class extends Migration
         Schema::dropIfExists('evaluations');
     }
 };
+  

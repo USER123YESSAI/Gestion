@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notes', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    $table->id();
+    $table->foreignId('etudiant_id')->constrained()->onDelete('cascade');
+    $table->foreignId('evaluation_id')->constrained()->onDelete('cascade');
+    $table->float('note');
+    $table->timestamps();
+});
     }
 
     /**
