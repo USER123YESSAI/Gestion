@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory; // <-- ligne à ajouter
 use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
@@ -18,4 +19,3 @@ class Note extends Model
         return $this->belongsTo(Evaluation::class);
     }
 }
-

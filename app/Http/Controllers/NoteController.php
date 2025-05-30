@@ -2,30 +2,62 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use App\Models\Etudiant;
+use App\Models\Evaluation;
 use Illuminate\Http\Request;
 
-class NoteController extends Controller {
-    public function create(Evaluation $evaluation) {
+class NoteController extends Controller
+{
+    public function index()
+    {
+        $notes = Note::with(['etudiant', 'evaluation'])->get();
+        return view('note.index', compact('notes'));
+    }
+
+    public function create()
+    {
         $etudiants = Etudiant::all();
-        return view('notes.create', compact('evaluation', 'etudiants'));
+        $evaluations = Evaluation::all();
+        return view('note.create', compact('etudiants', 'evaluations'));
     }
-    public function store(Request $request) {
-        foreach ($request->notes as $etudiant_id => $valeur) {
-            Note::updateOrCreate(
-                ['etudiant_id' => $etudiant_id, 'evaluation_id' => $request->evaluation_id],
-                ['valeur' => $valeur]
-            );
-        }
-        return back()->with('success', 'Notes enregistrées');
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'etudiant_id' => 'required|exists:etudiants,id',
+            'evaluation_id' => 'required|exists:evaluations,id',
+            'note' => 'required|numeric|min:0|max:20',
+        ]);
+
+        Note::create($request->all());
+
+        return redirect()->route('note.index')->with('success', 'Note ajoutée avec succès.');
     }
-    public function statistiques() {
-        $moyennes = Etudiant::with('notes')->get()->map(function ($etudiant) {
-            $notes = $etudiant->notes->pluck('valeur');
-            return [
-                'etudiant' => $etudiant,
-                'moyenne' => round($notes->avg(), 2)
-            ];
-        });
-        return view('notes.statistiques', compact('moyennes'));
+
+    public function edit(Note $note)
+    {
+        $etudiants = Etudiant::all();
+        $evaluations = Evaluation::all();
+        return view('note.edit', compact('note', 'etudiants', 'evaluations'));
+    }
+
+    public function update(Request $request, Note $note)
+    {
+        $request->validate([
+            'etudiant_id' => 'required|exists:etudiants,id',
+            'evaluation_id' => 'required|exists:evaluations,id',
+            'note' => 'required|numeric|min:0|max:20',
+        ]);
+
+        $note->update($request->all());
+
+        return redirect()->route('note.index')->with('success', 'Note mise à jour avec succès.');
+    }
+
+    public function destroy(Note $note)
+    {
+        $note->delete();
+        return redirect()->route('note.index')->with('success', 'Note supprimée avec succès.');
     }
 }
